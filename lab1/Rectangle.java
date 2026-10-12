@@ -32,5 +32,13 @@ public class Rectangle {
             }
         }
         System.out.println("Rectangle with the largest area: " + (maxAreaIndex + 1) + " (Area: " + rectangles[maxAreaIndex].area() + ")");
+
+        Rectangle r1 = new Rectangle(10, 20 );
+        Rectangle r2 = r1;
+        r2.width = 40;
+        System.out.println(r1.width);
+
+
+
     }
 }
