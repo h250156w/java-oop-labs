@@ -272,3 +272,31 @@ public static void main(String[] args) {
 **Lab 1, Question 4: Object References**
 When the program executes `Rectangle r2 = r1;`, it does not create a second rectangle. Instead, `r2` simply copies the memory address from `r1`. Because both variables now point to the exact same object on the heap, changing `r2.width` directly modifies the original rectangle, which is why printing `r1.width` outputs the new value.
 
+# Lab 2: Constructors, the this Keyword and static Members
+
+## Objectives
+* Initialise objects safely using constructors.
+* Overload constructors and chain them with `this(...)`.
+* Use `this` to distinguish fields from parameters.
+* Explain the difference between instance members and static members.
+* Use `static` and instance initialiser blocks.
+
+## Exercises and Code
+**Exercise 1: Circle Constructor**
+```java
+package lab2;
+
+public class Circle {
+    double radius;
+
+    public Circle(double radius) {
+        this.radius = radius;
+    }
+
+    public Circle() {
+        this.radius = 1.0;
+    }
+
+
+}
+```
