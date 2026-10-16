@@ -268,9 +268,13 @@ public static void main(String[] args) {
 }
 ```
 
-## Conclusions & Explanations
-**Lab 1, Question 4: Object References**
-When the program executes `Rectangle r2 = r1;`, it does not create a second rectangle. Instead, `r2` simply copies the memory address from `r1`. Because both variables now point to the exact same object on the heap, changing `r2.width` directly modifies the original rectangle, which is why printing `r1.width` outputs the new value.
+![Exercise 5 References](output-screenshots/lab1_exercise5_output.png)
+
+## Conclusions & Explanations (Lab 1)
+* ### Exercise 4 (Aliasing):
+    When executing `Rectangle r2 = r1;`, Java copies the memory address reference rather than duplicating the object. Because `r1` and `r2` point to the same instance on the heap, modifying `r2.width` alters `r1.width`.   
+* ### Exercise 5 (Chained Expressions & `null`):
+    Chained dot expressions (e.g., `person1.address.city`) navigate nested object references. When `person1.address` is set to `null`, attempting to access `.city` causes a runtime `NullPointerException` because no object exists at that reference.
 
 # Lab 2: Constructors, the this Keyword and static Members
 
