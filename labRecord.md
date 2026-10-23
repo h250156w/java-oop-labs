@@ -496,6 +496,7 @@ public class Temperature {
 
 # Lab 3: Encapsulation and Access Modifiers
 
+
 ## Objectives
 - Hide internal data with `private` fields and expose it through controlled methods.
 - Apply the four access levels correctly.
@@ -682,3 +683,185 @@ public class Temperature {
 **Designing Immutable Classes:** An immutable class uses a `final` class modifier, `private final` fields, and omits setters entirely. This ensures the object is locked into a valid state.
 
 **Abstraction in Encapsulation:** Internal data representation (Kelvin) can be completely hidden. The caller uses `getCelsius()` and `getFahrenheit()` without knowing those fields don't exist in memory.
+
+Markdown
+
+# Lab 4: Inheritance
+
+## Objectives
+- Create subclasses with `extends` and reuse superclass code.
+- Call superclass constructors and methods with `super`.
+- Use `protected`, `final` and the `@Override` annotation correctly.
+- Explain the constructor call order and the role of `java.lang.Object`.
+- Decide between inheritance ("is-a") and composition ("has-a").
+
+## Exercises and Code
+
+**Exercise 1: Person and Student**
+```java
+package lab4;
+
+class Person {
+    protected String name;
+    protected int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public void display() {
+        System.out.println("Name: " + name + ", Age: " + age);
+    }
+}
+
+class Student extends Person {
+    private String course;
+
+    public Student(String name, int age, String course) {
+        super(name, age);
+        this.course = course;
+    }
+
+    @Override
+    public void display() {
+        super.display();
+        System.out.println("Course: " + course);
+    }
+}
+
+public class StudentDemo {
+    public static void main(String[] args) {
+        Student s = new Student("Alice", 20, "Computer Science");
+        System.out.println("--- Student ---");
+        s.display();
+    }
+}
+```
+![Exercise 1: Person and Student](output-screenshots/lab4_exercise1_output.png)
+
+**Exercise 2: Teacher Subclass**
+
+```Java
+package lab4;
+
+// Assuming Person and Student classes from Exercise 1 are in the same package
+
+class Teacher extends Person {
+    private String subject;
+
+    public Teacher(String name, int age, String subject) {
+        super(name, age);
+        this.subject = subject;
+    }
+
+    @Override
+    public void display() {
+        super.display();
+        System.out.println("Subject: " + subject);
+    }
+}
+
+public class TeacherDemo {
+    public static void main(String[] args) {
+        Student s = new Student("Alice", 20, "Computer Science");
+        Teacher t = new Teacher("Mr. Smith", 45, "Mathematics");
+        
+        System.out.println("--- Student ---");
+        s.display();
+        System.out.println("--- Teacher ---");
+        t.display();
+    }
+}
+```
+![Exercise 2: Teacher Subclass](output-screenshots/lab4_exercise2_output.png)
+
+**Exercise 3: Vehicle Hierarchy**
+
+```Java
+package lab4;
+
+class Vehicle {
+    public Vehicle() { System.out.println("Vehicle Constructor"); }
+}
+
+class Car extends Vehicle {
+    public Car() { System.out.println("Car Constructor"); }
+}
+
+class ElectricCar extends Car {
+    public ElectricCar() { System.out.println("ElectricCar Constructor"); }
+
+    public static void main(String[] args) {
+        new ElectricCar();
+    }
+}
+```
+![Exercise 3: Vehicle Hierarchy](output-screenshots/lab4_exercise3_output.png)
+
+**Exercise 4: Superclass Constructor**
+
+```Java
+package lab4;
+
+class Animal {
+    private String name;
+    
+    public Animal(String name) {
+        this.name = name;
+    }
+}
+
+class Dog extends Animal {
+    public Dog(String name) {
+        // Must explicitly call the parent constructor that matches, 
+        // otherwise Java tries to call a default super() which doesn't exist here.
+        super(name); 
+    }
+
+    public static void main(String[] args) {
+        Dog d = new Dog("Rex");
+        System.out.println("Dog created successfully.");
+    }
+}
+```
+![Exercise 4: Superclass Constructor](output-screenshots/lab4_exercise4_output.png)
+
+**Exercise 5: Stack Composition**
+
+```Java
+package lab4;
+
+import java.util.ArrayList;
+
+class GoodStack<T> {
+    // HAS-A relationship (Composition) rather than IS-A (Inheritance)
+    private final ArrayList<T> list = new ArrayList<>(); 
+
+    public void push(T item) { list.add(item); }
+    
+    public T pop() { 
+        if (list.isEmpty()) throw new IllegalStateException("Stack is empty");
+        return list.remove(list.size() - 1); 
+    }
+    
+    public int size() { return list.size(); }
+}
+
+public class StackDemo {
+    public static void main(String[] args) {
+        GoodStack<String> stack = new GoodStack<>();
+        stack.push("First");
+        stack.push("Second");
+        System.out.println("Popped: " + stack.pop());
+        // stack.clear(); // This would be a compile error, which is exactly what we want!
+    }
+}
+```
+![Exercise 5: Stack Composition](output-screenshots/lab4_exercise5_output.png)
+## Conclusions & Explanations
+**Constructor Call Order:** When a subclass object is instantiated, constructors are chained upwards. The highest superclass constructor executes first, followed by its subclasses, ending with the specific instantiated class.
+
+**The `super` Keyword:** If a superclass does not have a no-argument constructor, the subclass must explicitly call `super(args)` as the very first line of its own constructor.
+
+**Composition over Inheritance:** Inheriting from `ArrayList` to build a Stack incorrectly exposes list methods like `.clear()` or `.remove(0)`. By using composition (storing the list as a private field), we restrict access and strictly enforce the Last-In-First-Out rule.
