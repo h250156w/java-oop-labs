@@ -865,3 +865,199 @@ public class StackDemo {
 **The `super` Keyword:** If a superclass does not have a no-argument constructor, the subclass must explicitly call `super(args)` as the very first line of its own constructor.
 
 **Composition over Inheritance:** Inheriting from `ArrayList` to build a Stack incorrectly exposes list methods like `.clear()` or `.remove(0)`. By using composition (storing the list as a private field), we restrict access and strictly enforce the Last-In-First-Out rule.
+
+
+
+# Lab 5: Polymorphism
+
+## Objectives
+
+* Distinguish compile-time polymorphism (overloading) from run-time polymorphism (overriding).
+
+
+* Use a superclass reference to hold subclass objects (upcasting) and explain dynamic method dispatch.
+
+
+* Downcast safely with `instanceof` and pattern matching.
+
+
+* Write code that works with new subclasses without modification.
+
+
+
+## Exercises and Code
+
+**Exercise 1: Overloaded Printer**
+
+```java
+package lab5;
+
+public class Printer {
+    public void print(int i) { System.out.println("Printing int: " + i); }
+    public void print(double d) { System.out.println("Printing double: " + d); }
+    public void print(String s) { System.out.println("Printing String: " + s); }
+    public void print(int[] arr) { 
+        System.out.print("Printing int array: ");
+        for (int num : arr) System.out.print(num + " ");
+        System.out.println();
+    }
+
+    public static void main(String[] args) {
+        Printer p = new Printer();
+        p.print(42);
+        p.print(3.14);
+        p.print("Polymorphism");
+        p.print(new int[]{1, 2, 3});
+    }
+}
+
+```
+
+![Exercise 1: Overloaded Printer](output-screenshots/lab5_exercise1_output.png)
+
+**Exercise 2: Animal Overriding**
+
+```java
+package lab5;
+
+class Animal {
+    void sound() { System.out.println("Generic animal sound"); }
+}
+
+class Cat extends Animal {
+    @Override void sound() { System.out.println("Meow"); }
+}
+
+class Cow extends Animal {
+    @Override void sound() { System.out.println("Moo"); }
+}
+
+class Duck extends Animal {
+    @Override void sound() { System.out.println("Quack"); }
+}
+
+public class AnimalDemo {
+    public static void main(String[] args) {
+        Animal[] animals = { new Cat(), new Cow(), new Duck() };
+        
+        for (Animal a : animals) {
+            a.sound();
+        }
+    }
+}
+
+```
+
+![Exercise 2: Animal Overriding](output-screenshots/lab5_exercise2_output.png)
+**Exercise 3: Polymorphic Payroll**
+
+```java
+package lab5;
+
+class Employee {
+    protected double baseSalary;
+    public Employee(double baseSalary) { this.baseSalary = baseSalary; }
+    public double calculatePay() { return baseSalary; }
+}
+
+class Manager extends Employee {
+    private double bonus;
+    public Manager(double baseSalary, double bonus) { super(baseSalary); this.bonus = bonus; }
+    @Override public double calculatePay() { return baseSalary + bonus; }
+}
+
+class Developer extends Employee {
+    private int overtimeHours;
+    public Developer(double baseSalary, int overtimeHours) { super(baseSalary); this.overtimeHours = overtimeHours; }
+    @Override public double calculatePay() { return baseSalary + (overtimeHours * 25.0); }
+}
+
+class Intern extends Employee {
+    public Intern(double stipend) { super(stipend); }
+    @Override public double calculatePay() { return baseSalary; } 
+}
+
+public class PayrollDemo {
+    public static void main(String[] args) {
+        Employee[] staff = {
+            new Employee(2000),
+            new Manager(3500, 800),
+            new Developer(3000, 10),
+            new Intern(500)
+        };
+
+        double totalPayroll = 0;
+        for (Employee e : staff) {
+            totalPayroll += e.calculatePay(); 
+        }
+        System.out.printf("Total Payroll: $%.2f%n", totalPayroll);
+    }
+}
+
+```
+
+![Exercise 3: Polymorphic Payroll](output-screenshots/lab5_exercise3_output.png)
+**Exercise 4: Field Hiding vs Method Overriding**
+
+```java
+package lab5;
+
+class Parent {
+    String type = "Parent Field";
+    String getType() { return "Parent Method"; }
+}
+
+class Child extends Parent {
+    String type = "Child Field"; 
+    @Override String getType() { return "Child Method"; } 
+}
+
+public class ResolutionDemo {
+    public static void main(String[] args) {
+        Parent obj = new Child(); 
+        
+        System.out.println("Field access: " + obj.type);
+        System.out.println("Method access: " + obj.getType());
+    }
+}
+
+```
+
+![Exercise 4: Field Hiding vs Method Overriding](output-screenshots/lab5_exercise4_output.png)
+**Exercise 5: Refactoring `instanceof` to Polymorphism**
+
+```java
+package lab5;
+
+interface Payment { void process(); }
+
+class CardPayment implements Payment {
+    @Override public void process() { System.out.println("Polymorphic: Card swiped"); }
+}
+
+class MobilePayment implements Payment {
+    @Override public void process() { System.out.println("Polymorphic: Mobile scanned"); }
+}
+
+public class PaymentDemo {
+    public static void main(String[] args) {
+        Payment[] payments = { new CardPayment(), new MobilePayment() };
+        for (Payment p : payments) {
+            p.process();
+        }
+    }
+}
+
+```
+
+![Exercise 5: Refactoring](output-screenshots/lab5_exercise5_output.png)
+
+## Conclusions & Explanations
+
+* **Overloading vs Overriding:** Overloading occurs at compile-time when methods share a name but differ in parameters within a single class. Overriding occurs at run-time (dynamic method dispatch), executing the method corresponding to the actual object instance.
+
+
+* **Field Hiding vs Method Overriding:** Polymorphism applies only to instance methods, which are resolved at run-time. Fields are resolved at compile-time based on the declared variable type (`Parent`), demonstrating that fields are hidden rather than overridden.
+
+
+* **Refactoring `instanceof`:** Replacing rigid type checks (`instanceof`) with polymorphic interface methods simplifies code and adheres to the Open/Closed Principle.

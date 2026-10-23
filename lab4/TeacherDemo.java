@@ -1,5 +1,20 @@
 package lab4;
 
+class Teacher extends Person {
+    private String subject;
+
+    public Teacher(String name, int age, String subject) {
+        super(name, age);
+        this.subject = subject;
+    }
+
+    @Override
+    public void display() {
+        super.display();
+        System.out.println("Subject: " + subject);
+    }
+}
+
 public class TeacherDemo {
     public static void main(String[] args) {
         Student s = new Student("Alice", 20, "Computer Science");
