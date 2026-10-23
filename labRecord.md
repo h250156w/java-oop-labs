@@ -221,12 +221,8 @@ public class Rectangle {
 
 
 
-## Conclusions & Explanations
-**Lab 1, Question 4: Object References**
-When the program executes `Rectangle r2 = r1;`, it does not create a second rectangle. Instead, `r2` simply copies the memory address from `r1`. Because both variables now point to the exact same object on the heap, changing `r2.width` directly modifies the original rectangle, which is why printing `r1.width` outputs the new value.
+**Exercise 5: Chained Expressions & `null`**
 
-
-**Exercise 5: Objects that hold other objects**
 `Address.java`
 ```java
 package lab1;
@@ -268,10 +264,10 @@ public static void main(String[] args) {
 }
 ```
 
-![Exercise 5 References](output-screenshots/lab1_exercise5_output.png)
+![Exercise 5 Chained Expressions & `null`](output-screenshots/lab1_exercise5_output.png)
 
 ## Conclusions & Explanations (Lab 1)
-* ### Exercise 4 (Aliasing):
+* ### Exercise 4 (References):
     When executing `Rectangle r2 = r1;`, Java copies the memory address reference rather than duplicating the object. Because `r1` and `r2` point to the same instance on the heap, modifying `r2.width` alters `r1.width`.   
 * ### Exercise 5 (Chained Expressions & `null`):
     Chained dot expressions (e.g., `person1.address.city`) navigate nested object references. When `person1.address` is set to `null`, attempting to access `.city` causes a runtime `NullPointerException` because no object exists at that reference.
@@ -409,5 +405,280 @@ public class Employee {
 ```
 ![Exercise 3: Employee Override](output-screenshots/lab2_exercise3_output.png)
 
+**Exercise 4: Prediction**
+```java
+package lab2;
+
+public class Predict {
+    static {
+        System.out.println("Static Block 1");
+    }
+
+    static {
+        System.out.println("Static Block 2");
+    }
+
+    {
+        System.out.println("Instance Block 1");
+    }
+
+    {
+        System.out.println("Instance Block 2");
+    }
+
+    public Predict() {
+        System.out.println("Constructor");
+    }
+
+    public static void main(String[] args) {
+        System.out.println("--- First Object ---");
+        new Predict();
+        System.out.println("--- Second Object ---");
+        new Predict();
+    }
+}
+```
+![Exercise 4: Prediction](output-screenshots/lab2_exercise4_output.png)
 
 
+**Exercise 5: Temperature**
+```java
+package lab2;
+
+public class Temperature {
+    private final double kelvin;
+
+    
+    private Temperature(double kelvin) {
+        this.kelvin = kelvin;
+    }
+
+    
+    public static Temperature fromCelsius(double celsius) {
+        return new Temperature(celsius + 273.15);
+    }
+
+    
+    public static Temperature fromFahrenheit(double fahrenheit) {
+        return new Temperature((fahrenheit - 32) * 5 / 9 + 273.15);
+    }
+
+    public double getCelsius() {
+        return kelvin - 273.15;
+    }
+
+    public double getFahrenheit() {
+        return (kelvin - 273.15) * 9 / 5 + 32;
+    }
+
+    public static void main(String[] args) {
+        Temperature t1 = Temperature.fromCelsius(25.0);
+        Temperature t2 = Temperature.fromFahrenheit(98.6);
+
+        System.out.printf("t1 in Fahrenheit: %.2f°F%n", t1.getFahrenheit());
+        System.out.printf("t2 in Celsius: %.2f°C%n", t2.getCelsius());
+    }
+}
+```
+![Exercise 5: Temperature](output-screenshots/lab2_exercise5_output.png)
+
+
+## Conclusions & Explanations (Lab 2)
+* ### Initialization Order:
+    Static blocks execute only once when the class is loaded by the JVM. Instance blocks execute prior to constructor execution each time an object is instantiated.
+
+* ### Copy Constructor Behavior:
+    The copy constructor copies field values into a new memory instance, ensuring modifications to the original object do not impact the copied object.
+
+* ### Static Factory Methods vs. Constructors:
+    Static factory methods provide named construction (e.g., `fromCelsius` vs `fromFahrenheit`), which avoids signature conflicts when multiple factory operations accept identical parameter types.
+
+
+# Lab 3: Encapsulation and Access Modifiers
+
+## Objectives
+- Hide internal data with `private` fields and expose it through controlled methods.
+- Apply the four access levels correctly.
+- Enforce validation rules (class invariants) inside setters and constructors.
+- Design classes that cannot be put into an invalid state.
+
+## Exercises and Code
+
+**Exercises 1 & 2: Student**
+```java
+package lab3;
+
+public class Student {
+    private String name;
+    private double marks;
+
+    public Student(String name, double marks) {
+        setName(name);
+        setMarks(marks);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Name cannot be empty.");
+        }
+        this.name = name.trim();
+    }
+
+    public double getMarks() {
+        return marks;
+    }
+
+    public void setMarks(double marks) {
+        if (marks < 0 || marks > 100) {
+            throw new IllegalArgumentException("Marks must be between 0 and 100.");
+        }
+        this.marks = marks;
+    }
+
+    public String getGrade() {
+        if (marks >= 75) return "A";
+        if (marks >= 65) return "B";
+        if (marks >= 50) return "C";
+        return "F";
+    }
+
+    public static void main(String[] args) {
+        Student s1 = new Student("Tariro", 82.5);
+        System.out.printf("Student: %s | Marks: %.1f | Grade: %s%n", s1.getName(), s1.getMarks(), s1.getGrade());
+
+        try {
+            s1.setMarks(105); 
+        } catch (IllegalArgumentException e) {
+            System.out.println("Validation caught: " + e.getMessage());
+        }
+    }
+}
+```
+
+![Exercise 1&2: Student](output-screenshots/lab3_exercise1&2_output.png)
+
+**Exercise 3: Bank Account**
+
+```java
+package lab3;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class BankAccount {
+    private final String accountNumber;
+    private String ownerName;
+    private double balance;
+    private final List<String> history = new ArrayList<>();
+
+    public BankAccount(String accountNumber, String ownerName, double initialDeposit) {
+        if (initialDeposit < 0) throw new IllegalArgumentException("Deposit cannot be negative");
+        this.accountNumber = accountNumber;
+        this.ownerName = ownerName;
+        this.balance = initialDeposit;
+        history.add("Account opened with $" + initialDeposit);
+    }
+
+    public double getBalance() { return balance; }
+
+    public List<String> getHistory() {
+        return Collections.unmodifiableList(history);
+    }
+
+    public void deposit(double amount) {
+        if (amount <= 0) throw new IllegalArgumentException("Deposit must be positive");
+        balance += amount;
+        history.add("Deposited $" + amount);
+    }
+
+    public static void main(String[] args) {
+        BankAccount acc = new BankAccount("ACC-001", "James", 500);
+        acc.deposit(200);
+        System.out.println("Balance: $" + acc.getBalance());
+        System.out.println("History: " + acc.getHistory());
+        
+        try {
+            acc.getHistory().clear(); 
+        } catch (UnsupportedOperationException e) {
+            System.out.println("Encapsulation protected the history list.");
+        }
+    }
+}
+```
+![Exercise 3: Bank Account](output-screenshots/lab3_exercise3_output.png)
+
+**Exercise 4: ImmutablePerson**
+
+```java
+package lab3;
+
+public final class ImmutablePerson {
+    private final String idNumber;
+    private final String fullName;
+
+    public ImmutablePerson(String idNumber, String fullName) {
+        if (idNumber == null || fullName == null) {
+            throw new IllegalArgumentException("Fields cannot be null");
+        }
+        this.idNumber = idNumber;
+        this.fullName = fullName;
+    }
+
+    public String getIdNumber() { return idNumber; }
+    public String getFullName() { return fullName; }
+
+    public static void main(String[] args) {
+        ImmutablePerson p = new ImmutablePerson("63-294810-A-18", "Nyasha Makamure");
+        System.out.println("ID: " + p.getIdNumber());
+        System.out.println("Name: " + p.getFullName());
+    }
+}
+```
+![Exercise 4: ImmutablePerson](output-screenshots/lab3_exercise4_output.png)
+
+**Exercise 5: Temperature**
+
+```java
+package lab3;
+
+public class Temperature {
+    private double kelvin;
+
+    public Temperature(double kelvin) {
+        setKelvin(kelvin);
+    }
+
+    public void setKelvin(double kelvin) {
+        if (kelvin < 0) {
+            throw new IllegalArgumentException("Temperature cannot be below absolute zero.");
+        }
+        this.kelvin = kelvin;
+    }
+
+    public double getKelvin() { return kelvin; }
+    public double getCelsius() { return kelvin - 273.15; }
+    public double getFahrenheit() { return (kelvin - 273.15) * 9 / 5 + 32; }
+
+    public static void main(String[] args) {
+        Temperature t = new Temperature(300.15);
+        System.out.printf("Internal Kelvin: %.2f K%n", t.getKelvin());
+        System.out.printf("Exposed Celsius: %.2f °C%n", t.getCelsius());
+        System.out.printf("Exposed Fahrenheit: %.2f °F%n", t.getFahrenheit());
+    }
+}
+```
+![Exercise 5: Temperature](output-screenshots/lab3_exercise5_output.png)
+
+## Conclusions & Explanations
+**Validation & Computed State:** Enforcing bounds in setters prevents objects from entering invalid states (like marks over 100). Methods like `getGrade()` dynamically compute results instead of storing redundant data.
+
+**Defensive Copying:** Returning a reference to an internal mutable object leaks encapsulation. Using `Collections.unmodifiableList()` ensures that external code cannot alter the internal list.
+
+**Designing Immutable Classes:** An immutable class uses a `final` class modifier, `private final` fields, and omits setters entirely. This ensures the object is locked into a valid state.
+
+**Abstraction in Encapsulation:** Internal data representation (Kelvin) can be completely hidden. The caller uses `getCelsius()` and `getFahrenheit()` without knowing those fields don't exist in memory.
