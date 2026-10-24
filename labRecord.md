@@ -1061,3 +1061,225 @@ public class PaymentDemo {
 
 
 * **Refactoring `instanceof`:** Replacing rigid type checks (`instanceof`) with polymorphic interface methods simplifies code and adheres to the Open/Closed Principle.
+
+
+# Lab 6: Abstraction, Abstract Classes and Interfaces
+
+## Objectives
+
+* Define abstract classes and explain why they cannot be instantiated.
+
+
+* Define and implement interfaces, including default and static methods.
+
+
+* Choose correctly between an abstract class and an interface.
+
+
+* Program to an interface, not to an implementation.
+
+
+
+## Exercises and Code
+
+**Exercise 1: Abstract Shapes**
+
+```java
+package lab6;
+
+abstract class Shape {
+    abstract double area();
+    abstract double perimeter();
+}
+
+class Circle extends Shape {
+    private double r;
+    Circle(double r) { this.r = r; }
+    @Override double area() { return Math.PI * r * r; }
+    @Override double perimeter() { return 2 * Math.PI * r; }
+}
+
+class Rectangle extends Shape {
+    private double w, h;
+    Rectangle(double w, double h) { this.w = w; this.h = h; }
+    @Override double area() { return w * h; }
+    @Override double perimeter() { return 2 * (w + h); }
+}
+
+class Square extends Rectangle {
+    Square(double side) { super(side, side); }
+}
+
+public class ShapeDemo {
+    public static void main(String[] args) {
+        Shape c = new Circle(5);
+        Shape r = new Rectangle(4, 6);
+        Shape s = new Square(4);
+        
+        System.out.printf("Circle Area: %.2f%n", c.area());
+        System.out.printf("Rectangle Area: %.2f%n", r.area());
+        System.out.printf("Square Area: %.2f%n", s.area());
+    }
+}
+
+```
+![Exercise 1: Abstract Shapes](output-screenshots/lab6_exercise1_output.png)
+
+**Exercise 2: Flyable Interface**
+
+```java
+package lab6;
+
+interface Flyable {
+    void fly();
+}
+
+class Bird implements Flyable {
+    @Override public void fly() { System.out.println("Bird flaps wings to fly."); }
+}
+
+class Aeroplane implements Flyable {
+    @Override public void fly() { System.out.println("Aeroplane uses engines to fly."); }
+}
+
+public class FlightDemo {
+    public static void main(String[] args) {
+        Flyable[] flyers = { new Bird(), new Aeroplane() };
+        for (Flyable f : flyers) {
+            f.fly();
+        }
+    }
+}
+
+```
+
+![Exercise 2: Flyable Interface](output-screenshots/lab6_exercise2_output.png)
+**Exercise 3: Account Hierarchy**
+
+```java
+package lab6;
+
+abstract class Account {
+    protected double balance;
+    
+    public Account(double balance) { this.balance = balance; }
+    
+    public void deposit(double amount) { 
+        balance += amount; 
+        System.out.println("Deposited " + amount + ". Balance: " + balance);
+    }
+    
+    abstract void applyMonthlyFee();
+}
+
+class SavingsAccount extends Account {
+    public SavingsAccount(double balance) { super(balance); }
+    @Override void applyMonthlyFee() {
+        balance -= 5.0; 
+        System.out.println("Savings fee applied. Balance: " + balance);
+    }
+}
+
+class CurrentAccount extends Account {
+    public CurrentAccount(double balance) { super(balance); }
+    @Override void applyMonthlyFee() {
+        balance -= (balance * 0.01); 
+        System.out.println("Current fee applied. Balance: " + balance);
+    }
+}
+
+public class AccountDemo {
+    public static void main(String[] args) {
+        Account[] accounts = { new SavingsAccount(1000), new CurrentAccount(2000) };
+        for (Account acc : accounts) {
+            acc.deposit(100);
+            acc.applyMonthlyFee();
+        }
+    }
+}
+
+```
+![Exercise 3: Account Hierarchy](output-screenshots/lab6_exercise3_output.png)
+**Exercise 4: Student Sorting**
+
+```java
+package lab6;
+
+import java.util.Arrays;
+import java.util.Comparator;
+
+class Student implements Comparable<Student> {
+    private String name;
+    private double marks;
+
+    public Student(String name, double marks) { this.name = name; this.marks = marks; }
+    public String getName() { return name; }
+    public double getMarks() { return marks; }
+
+    @Override
+    public int compareTo(Student other) {
+        return this.name.compareTo(other.name); 
+    }
+
+    @Override
+    public String toString() { return name + "(" + marks + ")"; }
+}
+
+public class SortDemo {
+    public static void main(String[] args) {
+        Student[] students = {
+            new Student("James", 85),
+            new Student("Alice", 92),
+            new Student("Bob", 78)
+        };
+
+        Arrays.sort(students);
+        System.out.println("Sorted by Name: " + Arrays.toString(students));
+
+        Arrays.sort(students, Comparator.comparingDouble(Student::getMarks).reversed());
+        System.out.println("Sorted by Marks Desc: " + Arrays.toString(students));
+    }
+}
+
+```
+![Exercise 4: Student Sorting](output-screenshots/lab6_exercise4_output.png)
+**Exercise 5: Default Method Conflict**
+
+```java
+package lab6;
+
+interface InterfaceA {
+    default void hello() { System.out.println("Hello from A"); }
+}
+
+interface InterfaceB {
+    default void hello() { System.out.println("Hello from B"); }
+}
+
+class ConflictResolver implements InterfaceA, InterfaceB {
+    @Override
+    public void hello() {
+        InterfaceA.super.hello(); 
+    }
+}
+
+public class ConflictDemo {
+    public static void main(String[] args) {
+        new ConflictResolver().hello();
+    }
+}
+
+```
+
+![Exercise 5: Default Method Conflict](output-screenshots/lab6_exercise5_output.png)
+## Conclusions & Explanations
+
+* **Abstract Classes vs Interfaces:** Abstract classes provide shared code and state to related classes, whereas an interface provides a contract to unrelated classes.
+
+
+* **Sorting Mechanisms:** `Comparable` sets a class's natural ordering. A `Comparator` provides multiple, external sorting rules.
+
+
+* **Interface Diamond Problem:** Implementing two interfaces with identically signed default methods forces a class to explicitly override the method and resolve the conflict using `InterfaceName.super.methodName()`.
+
+
